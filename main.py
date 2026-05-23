@@ -1,6 +1,14 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="Arlette")
+from api.routes import router as api_router
+from core.lifecycle import lifespan
+
+app = FastAPI(
+    title="Arlette",
+    lifespan=lifespan,
+)
+
+app.include_router(api_router)
 
 
 @app.get("/health")

@@ -7,25 +7,16 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi",
     "uvicorn[standard]",
-
     "sqlalchemy",
     "psycopg[binary]",
-
     "alembic",
-
     "redis",
-
     "httpx",
-
     "pydantic",
     "pydantic-settings",
-
     "jinja2",
-
     "openai",
-
     "structlog",
-
     "python-dotenv",
 ]
 
