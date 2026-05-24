@@ -1,7 +1,9 @@
-from abc import ABC, abstractmethod
+from typing import Protocol
 
 
-class LLMProvider(ABC):
-    @abstractmethod
-    async def complete(self, *, system: str, user: str) -> str:
-        pass
+class LLMProvider(Protocol):
+    async def complete(self, system: str, user: str) -> str:
+        """
+        Returns the model output as plain text.
+        """
+        ...

@@ -1,3 +1,4 @@
+# mypy: disable-error-code=call-arg
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict

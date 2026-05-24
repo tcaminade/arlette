@@ -5,17 +5,13 @@ Revises: 9c14edbd7a80
 Create Date: 2026-05-23 15:23:28.507099
 
 """
-from typing import Sequence, Union
-
-from alembic import op
-import sqlalchemy as sa
-
+from collections.abc import Sequence
 
 # revision identifiers, used by Alembic.
 revision: str = '216555583b2b'
-down_revision: Union[str, Sequence[str], None] = '9c14edbd7a80'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = '9c14edbd7a80'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
