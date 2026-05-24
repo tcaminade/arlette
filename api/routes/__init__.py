@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from api.routes.events import router as events_router
 from api.routes.system import router as system_router
 

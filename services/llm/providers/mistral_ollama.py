@@ -1,8 +1,8 @@
 import httpx
 import structlog
 
-from services.llm.provider import LLMProvider
 from core.config import get_settings
+from services.llm.provider import LLMProvider
 
 logger = structlog.get_logger()
 
@@ -49,4 +49,4 @@ class MistralOllamaProvider(LLMProvider):
 
         data = response.json()
 
-        return data["response"]
+        return str(data["response"])
