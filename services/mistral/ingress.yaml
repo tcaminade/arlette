@@ -4,21 +4,21 @@ kind: Ingress
 metadata:
   name: ollama
   namespace: ai
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
 
 spec:
   ingressClassName: nginx
-
   rules:
     - host: ollama.lab.local
-
       http:
         paths:
           - path: /
             pathType: Prefix
-
             backend:
               service:
                 name: ollama
-
                 port:
                   number: 11434
