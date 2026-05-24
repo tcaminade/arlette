@@ -1,11 +1,9 @@
-from core.config import get_settings
-
-settings = get_settings()
+from services.llm.factory import create_llm_provider
 
 
 class LLMClient:
-    async def summarize(self, text: str) -> str:
-        return f"[SUMMARY] {text[:120]}"
+    def __init__(self):
+        self.provider = create_llm_provider()
 
-    async def arlette_voice(self, text: str) -> str:
-        return f"[ARLETTE] {text[:200]}"
+    async def complete(self, *, system: str, user: str) -> str:
+        return await self.provider.complete(system=system, user=user)

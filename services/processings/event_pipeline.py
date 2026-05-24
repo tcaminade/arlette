@@ -1,25 +1,20 @@
 from sqlalchemy.orm import Session
 
+from db.models.narrative import Narrative
 from db.repositories.event_repository import EventRepository
 from services.llm.client import LLMClient
-from db.models.narrative import Narrative
+from services.processings.voices import VoiceEngine
 
-from datetime import datetime, timezone
 
 class EventPipeline:
-    def __init__(self, db: Session, llm: LLMClient):
+    def __init__(self, db: Session):
         self.db = db
-        self.llm = llm
         self.repo = EventRepository(db)
 
-    async def process_event(
-        self,
-        *,
-        source: str,
-        title: str,
-        content: str,
-        url: str,
-    ) -> Narrative:
+        self.llm = LLMClient()
+        self.voices = VoiceEngine(self.llm)
+
+    async def process_event(self, *, source: str, title: str, content: str, url: str):
         event = self.repo.create(
             source=source,
             title=title,
@@ -27,21 +22,37 @@ class EventPipeline:
             url=url,
         )
 
-        if event.published_at is None:
-            event.published_at = datetime.now(timezone.utc)
-            self.db.commit()
+        ops = await self.voices.ops(content)
+        audit = await self.voices.audit(content)
+        arlette = await self.voices.arlette(content)
 
-        summary = await self.llm.summarize(content)
-        arlette = await self.llm.arlette_voice(summary)
+        narrative_text = f"""
+OPS:
+{ops}
+
+AUDIT:
+{audit}
+
+ARLETTE:
+{arlette}
+"""
 
         narrative = Narrative(
             event_id=event.id,
-            voice="arlette",
-            content=arlette,
+            voice="multi",
+            content=narrative_text,
         )
 
         self.db.add(narrative)
         self.db.commit()
         self.db.refresh(narrative)
 
-        return narrative
+        return {
+            "event_id": event.id,
+            "narrative": narrative,
+            "voices": {
+                "ops": ops,
+                "audit": audit,
+                "arlette": arlette,
+            },
+        }
