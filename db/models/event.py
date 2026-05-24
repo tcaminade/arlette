@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from uuid import uuid4
 
-from sqlalchemy import DateTime, String, Text
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.base import Base
@@ -10,16 +10,20 @@ from db.base import Base
 class Event(Base):
     __tablename__ = "events"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(
+        String,
+        primary_key=True,
+        default=lambda: str(uuid4()),
+    )
 
-    source: Mapped[str] = mapped_column(String(255))
-    title: Mapped[str] = mapped_column(String(500))
+    content: Mapped[str] = mapped_column(String, nullable=False)
 
-    content: Mapped[str] = mapped_column(Text)
+    source: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    url: Mapped[str] = mapped_column(String(1000))
+    title: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    published_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    url: Mapped[str | None] = mapped_column(String, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,

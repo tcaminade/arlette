@@ -1,25 +1,24 @@
 from services.llm.client import LLMClient
-from prompts.load import load_prompt
 
 
 class VoiceEngine:
-    def __init__(self, llm: LLMClient):
-        self.llm = llm
+    def __init__(self) -> None:
+        self.llm = LLMClient()
 
-    async def ops(self, text: str) -> str:
+    async def ops(self, content: str) -> str:
         return await self.llm.complete(
-            system=load_prompt("prompts/voices/ops.txt"),
-            user=text,
+            system="You are OPS voice. Be technical and precise.",
+            user=content,
         )
 
-    async def audit(self, text: str) -> str:
+    async def audit(self, content: str) -> str:
         return await self.llm.complete(
-            system=load_prompt("prompts/voices/audit.txt"),
-            user=text,
+            system="You are AUDIT voice. Be critical and structured.",
+            user=content,
         )
 
-    async def arlette(self, text: str) -> str:
+    async def arlette(self, content: str) -> str:
         return await self.llm.complete(
-            system=load_prompt("prompts/voices/arlette.txt"),
-            user=text,
+            system="You are ARLETTE. You are satirical and narrative.",
+            user=content,
         )

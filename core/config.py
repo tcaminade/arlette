@@ -1,3 +1,4 @@
+# mypy: disable-error-code=call-arg
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -7,7 +8,9 @@ class Settings(BaseSettings):
     app_name: str = "Arlette"
     debug: bool = True
 
-    postgres_dsn: str
+    postgres_dsn: str = (
+        "postgresql+psycopg://arlette:arlette@localhost:5432/arlette"
+    )
     redis_url: str
 
     openai_api_key: str = ""

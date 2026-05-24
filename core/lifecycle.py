@@ -5,14 +5,14 @@ import structlog
 from fastapi import FastAPI
 
 from core.config import get_settings
-from core.logging import setup_logging
+from core.logging import configure_logging
 
 logger = structlog.get_logger()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    setup_logging()
+    configure_logging()
 
     settings = get_settings()
 

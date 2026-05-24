@@ -1,38 +1,52 @@
 import httpx
+import structlog
 
 from core.config import get_settings
 from services.llm.provider import LLMProvider
 
+logger = structlog.get_logger()
+
 
 class MistralOllamaProvider(LLMProvider):
-    def __init__(self):
-        settings = get_settings()
+    def __init__(self) -> None:
+        self.settings = get_settings()
+        self.client = httpx.AsyncClient()
 
-        self.model = settings.ollama_model
-        self.base_url = settings.ollama_base_url
+    async def complete(self, system: str, user: str) -> str:
+        url = f"{self.settings.ollama_base_url}/api/generate"
 
-    async def complete(self, *, system: str, user: str) -> str:
-        prompt = f"""SYSTEM:
-{system}
+        payload = {
+            "model": "mistral",
+            "prompt": f"{system}\n\n{user}",
+            "stream": False,
+        }
 
-USER:
-{user}
-"""
+        # 👇 IMPORTANT : on neutralise UNIQUEMENT le read timeout
+        timeout = httpx.Timeout(
+            connect=10.0,   # garde un minimum de sécurité réseau
+            read=None,      # 🔥 autorise inference infinie
+            write=30.0,     # protection basique payload
+            pool=30.0,      # évite blocage pool connection
+        )
 
-        timeout = httpx.Timeout(300.0)
+        logger.info(
+            "calling_ollama",
+            url=url,
+            timeout="read=None"
+        )
 
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.post(
-                f"{self.base_url}/api/generate",
-                json={
-                    "model": self.model,
-                    "prompt": prompt,
-                    "stream": False,
-                },
+        try:
+            response = await self.client.post(
+                url,
+                json=payload,
+                timeout=timeout,
             )
+            response.raise_for_status()
 
-        response.raise_for_status()
+        except httpx.HTTPError as e:
+            logger.exception("ollama_request_failed", error=str(e))
+            raise
 
         data = response.json()
 
-        return data.get("response", "")
+        return str(data["response"])
